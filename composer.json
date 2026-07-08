@@ -1,0 +1,38 @@
+{
+    "name": "flowrise-hms/fhir",
+    "description": "FHIR R4 server module for FlowRise HMS",
+    "type": "laravel-module",
+    "keywords": ["fhir", "hl7", "interoperability", "healthcare", "api"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Flowrise Digital",
+            "homepage": "https://github.com/Flowrise-HMS",
+            "email": "flowrisedigitals@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^8.4",
+        "swaggest/json-schema": "^0.12"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {}
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\FHIR\\": "app/",
+            "Modules\\FHIR\\Database\\Factories\\": "database/factories/",
+            "Modules\\FHIR\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\FHIR\\Tests\\": "tests/"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

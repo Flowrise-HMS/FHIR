@@ -1,0 +1,12 @@
+{
+    "name": "FHIR",
+    "alias": "fhir",
+    "description": "FHIR R4 server module providing Patient, Practitioner, and PractitionerRole resources with full CRUD, FHIR search, and validation.",
+    "keywords": ["fhir", "hl7", "interoperability", "healthcare", "api"],
+    "priority": 1,
+    "providers": [
+        "Modules\\FHIR\\Providers\\FhirServiceProvider"
+    ],
+    "files": [],
+    "requires": []
+}
