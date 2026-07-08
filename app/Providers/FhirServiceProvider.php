@@ -13,4 +13,14 @@ class FhirServiceProvider extends ModuleServiceProvider
     protected array $providers = [
         RouteServiceProvider::class,
     ];
+
+    public function boot(): void
+    {
+        parent::boot();
+
+        $this->app['router']->aliasMiddleware(
+            'fhir.negotiation',
+            \Modules\FHIR\Http\Middleware\FhirContentNegotiation::class
+        );
+    }
 }
