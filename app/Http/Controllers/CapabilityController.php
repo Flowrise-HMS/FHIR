@@ -15,9 +15,8 @@ class CapabilityController extends Controller
     public function metadata(): JsonResponse
     {
         $resources = $this->registrar->getAll();
-        $resourceTypes = array_map(fn ($r) => $r['resource_type'], $resources);
 
-        return response()->json([
+        return new JsonResponse([
             'resourceType' => 'CapabilityStatement',
             'status' => 'active',
             'date' => now()->toIso8601String(),
@@ -32,8 +31,24 @@ class CapabilityController extends Controller
             'rest' => [
                 [
                     'mode' => 'server',
-                    'resource' => array_map(fn ($type) => [
-                        'type' => $type,
+                    'documentation' => 'FlowRise HMS FHIR R4 API',
+                    'security' => [
+                        'description' => 'Bearer token authentication via HTTP Authorization header (Sanctum)',
+                        'service' => [
+                            [
+                                'coding' => [
+                                    [
+                                        'system' => 'http://terminology.hl7.org/CodeSystem/restful-security-service',
+                                        'code' => 'Bearer',
+                                        'display' => 'Bearer',
+                                    ],
+                                ],
+                                'text' => 'Bearer token',
+                            ],
+                        ],
+                    ],
+                    'resource' => array_map(fn ($entry) => [
+                        'type' => $entry['resource_type'],
                         'interaction' => [
                             ['code' => 'read'],
                             ['code' => 'search-type'],
@@ -41,9 +56,12 @@ class CapabilityController extends Controller
                             ['code' => 'update'],
                             ['code' => 'delete'],
                         ],
-                    ], $resourceTypes),
+                        'versioning' => 'no-version',
+                        'readHistory' => false,
+                        'updateCreate' => false,
+                    ], $resources),
                 ],
             ],
-        ]);
+        ], 200, ['Content-Type' => 'application/fhir+json']);
     }
 }

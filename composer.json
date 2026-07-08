@@ -9,6 +9,12 @@
             "name": "Flowrise Digital",
             "homepage": "https://github.com/Flowrise-HMS",
             "email": "flowrisedigitals@gmail.com"
+        },
+        {
+            "name": "Mushe Abdul-Hakim",
+            "email": "musheabdulhakim99@gmail.com",
+            "homepage": "https://github.com/musheabdulhakim",
+            "role": "Lead Developer"
         }
     ],
     "require": {
