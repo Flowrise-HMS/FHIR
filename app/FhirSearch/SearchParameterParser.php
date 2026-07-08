@@ -4,40 +4,96 @@ namespace Modules\FHIR\FhirSearch;
 
 class SearchParameterParser
 {
+    protected array $datePrefixes = ['eq', 'ne', 'lt', 'gt', 'le', 'ge', 'sa', 'eb'];
+    protected int $maxCount = 100;
+    protected int $defaultCount = 20;
+
     public function parse(array $queryParams): array
     {
         $params = [];
+        $params['_count'] = $this->parseCount($queryParams['_count'] ?? null);
+        $params['_offset'] = (int)($queryParams['_offset'] ?? 0);
+        $params['_sort'] = $this->parseSort($queryParams['_sort'] ?? null);
+
         foreach ($queryParams as $key => $value) {
             if (str_starts_with($key, '_')) {
-                $params[$key] = $value;
                 continue;
             }
+
             $modifier = null;
             $paramName = $key;
 
             if (str_contains($key, ':')) {
-                $parts = explode(':', $key, 2);
-                $paramName = $parts[0];
-                $modifier = $parts[1];
+                [$paramName, $modifier] = explode(':', $key, 2);
             }
 
-            $values = is_array($value) ? $value : [$value];
-            foreach ($values as $v) {
-                $prefix = null;
-                $val = $v;
+            $params['filters'][] = $this->parseValue($paramName, $value, $modifier);
+        }
 
-                if (preg_match('/^(eq|ne|gt|lt|ge|le|sa|eb|ap|exact|contains|text|above|below|in|not-in|of-type|missing|not)(.+)$/', $v, $m)) {
-                    $prefix = $m[1];
-                    $val = $m[2];
+        return $params;
+    }
+
+    protected function parseValue(string $name, string $value, ?string $modifier): array
+    {
+        $prefix = null;
+        $searchValue = $value;
+        $system = null;
+
+        foreach ($this->datePrefixes as $p) {
+            if (str_starts_with($value, $p) && strlen($value) > strlen($p)) {
+                $next = substr($value, strlen($p), 1);
+                if (ctype_digit($next) || $next === '-') {
+                    $prefix = $p;
+                    $searchValue = substr($value, strlen($p));
+                    break;
                 }
-
-                $params[$paramName][] = [
-                    'value' => $val,
-                    'prefix' => $prefix,
-                    'modifier' => $modifier,
-                ];
             }
         }
-        return $params;
+
+        if ($prefix === null && str_contains($value, '|')) {
+            $parts = explode('|', $value, 2);
+            $system = $parts[0] ?: null;
+            $searchValue = $parts[1] ?? '';
+        }
+
+        return [
+            'name' => $name,
+            'value' => $searchValue,
+            'modifier' => $modifier,
+            'prefix' => $prefix,
+            'system' => $system,
+        ];
+    }
+
+    protected function parseCount(?string $value): int
+    {
+        if ($value === null) {
+            return $this->defaultCount;
+        }
+
+        return min((int)$value, $this->maxCount);
+    }
+
+    protected function parseSort(?string $value): array
+    {
+        if ($value === null) {
+            return [];
+        }
+
+        $sorts = [];
+        foreach (explode(',', $value) as $field) {
+            $field = trim($field);
+            if ($field === '') {
+                continue;
+            }
+            $direction = 'asc';
+            if (str_starts_with($field, '-')) {
+                $direction = 'desc';
+                $field = substr($field, 1);
+            }
+            $sorts[] = ['field' => $field, 'direction' => $direction];
+        }
+
+        return $sorts;
     }
 }
