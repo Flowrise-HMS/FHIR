@@ -10,25 +10,26 @@ class BuilderSpy extends Builder
 {
     public array $calls = [];
 
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     public function where($column, $operator = null, $value = null, $boolean = 'and'): static
     {
         $this->calls[] = ['where', [$column, $operator, $value, $boolean]];
+
         return $this;
     }
 
     public function orderBy($column, $direction = 'asc'): static
     {
         $this->calls[] = ['orderBy', [$column, $direction]];
+
         return $this;
     }
 
     public function whereHas($relation, $callback = null, $operator = '>=', $count = 1): static
     {
         $this->calls[] = ['whereHas', [$relation, $callback, $operator, $count]];
+
         return $this;
     }
 }

@@ -3,11 +3,12 @@
 use Illuminate\Support\Facades\Route;
 use Modules\FHIR\Http\Controllers\CapabilityController;
 use Modules\FHIR\Http\Controllers\FhirController;
+use Modules\FHIR\Http\Middleware\FhirContentNegotiation;
 
 Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () {
     Route::get('fhir/metadata', [CapabilityController::class, 'metadata']);
 
-    Route::middleware([\Modules\FHIR\Http\Middleware\FhirContentNegotiation::class])->group(function () {
+    Route::middleware([FhirContentNegotiation::class])->group(function () {
         Route::get('fhir/{resource}/{id}', [FhirController::class, 'read'])
             ->where('resource', 'Patient|Practitioner|PractitionerRole');
         Route::get('fhir/{resource}', [FhirController::class, 'search'])

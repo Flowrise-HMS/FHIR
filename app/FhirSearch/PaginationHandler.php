@@ -33,6 +33,7 @@ class PaginationHandler
     protected function buildUrl(string $baseUrl, array $params): string
     {
         $separator = str_contains($baseUrl, '?') ? '&' : '?';
-        return $baseUrl . $separator . http_build_query($params);
+
+        return $baseUrl.$separator.http_build_query($params);
     }
 }

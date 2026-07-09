@@ -2,12 +2,16 @@
 
 namespace Modules\FHIR\Providers;
 
-use Modules\FHIR\FhirRouting\FhirResourceRegistrar;
 use Modules\FHIR\FhirResponse\FhirResponseFactory;
+use Modules\FHIR\FhirRouting\FhirResourceRegistrar;
+use Modules\FHIR\FhirSearch\PaginationHandler;
 use Modules\FHIR\FhirSearch\SearchParameterParser;
 use Modules\FHIR\FhirSearch\SearchQueryBuilder;
-use Modules\FHIR\FhirSearch\PaginationHandler;
 use Modules\FHIR\FhirValidation\FhirValidator;
+use Modules\FHIR\Http\Middleware\FhirContentNegotiation;
+use Modules\Patient\Classes\Fhir\FhirPatientTransformer;
+use Modules\Staff\Classes\Fhir\FhirPractitionerRoleTransformer;
+use Modules\Staff\Classes\Fhir\FhirPractitionerTransformer;
 use Nwidart\Modules\Support\ModuleServiceProvider;
 
 class FhirServiceProvider extends ModuleServiceProvider
@@ -26,7 +30,7 @@ class FhirServiceProvider extends ModuleServiceProvider
 
         $this->app['router']->aliasMiddleware(
             'fhir.negotiation',
-            \Modules\FHIR\Http\Middleware\FhirContentNegotiation::class
+            FhirContentNegotiation::class
         );
     }
 
@@ -42,9 +46,9 @@ class FhirServiceProvider extends ModuleServiceProvider
         $this->app->singleton(PaginationHandler::class);
 
         $this->app->resolving(FhirResourceRegistrar::class, function ($registrar) {
-            $registrar->register('Patient', \Modules\Patient\Classes\Fhir\FhirPatientTransformer::class);
-            $registrar->register('Practitioner', \Modules\Staff\Classes\Fhir\FhirPractitionerTransformer::class);
-            $registrar->register('PractitionerRole', \Modules\Staff\Classes\Fhir\FhirPractitionerRoleTransformer::class);
+            $registrar->register('Patient', FhirPatientTransformer::class);
+            $registrar->register('Practitioner', FhirPractitionerTransformer::class);
+            $registrar->register('PractitionerRole', FhirPractitionerRoleTransformer::class);
         });
     }
 }

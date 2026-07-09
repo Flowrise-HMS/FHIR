@@ -23,7 +23,7 @@ class FhirContentNegotiationTest extends TestCase
         $request = Request::create('/fhir/Patient', 'POST');
         $request->headers->set('Content-Type', 'application/fhir+json');
 
-        $next = fn(Request $req): JsonResponse => new JsonResponse(['resourceType' => 'Patient']);
+        $next = fn (Request $req): JsonResponse => new JsonResponse(['resourceType' => 'Patient']);
 
         $response = $this->middleware->handle($request, $next);
 
@@ -35,7 +35,7 @@ class FhirContentNegotiationTest extends TestCase
         $request = Request::create('/fhir/Patient', 'POST');
         $request->headers->set('Content-Type', 'application/json');
 
-        $next = fn(Request $req): JsonResponse => new JsonResponse(['resourceType' => 'Patient']);
+        $next = fn (Request $req): JsonResponse => new JsonResponse(['resourceType' => 'Patient']);
 
         $response = $this->middleware->handle($request, $next);
 
@@ -47,7 +47,7 @@ class FhirContentNegotiationTest extends TestCase
         $request = Request::create('/fhir/Patient', 'POST');
         $request->headers->set('Content-Type', 'text/xml');
 
-        $next = fn(Request $req): JsonResponse => new JsonResponse(['resourceType' => 'Patient']);
+        $next = fn (Request $req): JsonResponse => new JsonResponse(['resourceType' => 'Patient']);
 
         $response = $this->middleware->handle($request, $next);
 
@@ -59,7 +59,7 @@ class FhirContentNegotiationTest extends TestCase
         $request = Request::create('/fhir/Patient', 'GET');
         $request->headers->set('Accept', 'application/fhir+json');
 
-        $next = fn(Request $req): JsonResponse => new JsonResponse(['resourceType' => 'Patient']);
+        $next = fn (Request $req): JsonResponse => new JsonResponse(['resourceType' => 'Patient']);
 
         $response = $this->middleware->handle($request, $next);
 
@@ -70,7 +70,7 @@ class FhirContentNegotiationTest extends TestCase
     {
         $request = Request::create('/fhir/Patient', 'GET');
 
-        $next = fn(Request $req): JsonResponse => new JsonResponse(['resourceType' => 'Patient']);
+        $next = fn (Request $req): JsonResponse => new JsonResponse(['resourceType' => 'Patient']);
 
         $response = $this->middleware->handle($request, $next);
 
@@ -82,7 +82,7 @@ class FhirContentNegotiationTest extends TestCase
         $request = Request::create('/fhir/Patient', 'GET');
         $request->headers->set('Accept', '*/*');
 
-        $next = fn(Request $req): JsonResponse => new JsonResponse(['resourceType' => 'Patient']);
+        $next = fn (Request $req): JsonResponse => new JsonResponse(['resourceType' => 'Patient']);
 
         $response = $this->middleware->handle($request, $next);
 
@@ -94,7 +94,7 @@ class FhirContentNegotiationTest extends TestCase
         $request = Request::create('/fhir/Patient', 'GET');
         $request->headers->set('Accept', 'text/xml');
 
-        $next = fn(Request $req): JsonResponse => new JsonResponse(['resourceType' => 'Patient']);
+        $next = fn (Request $req): JsonResponse => new JsonResponse(['resourceType' => 'Patient']);
 
         $response = $this->middleware->handle($request, $next);
 
@@ -106,7 +106,7 @@ class FhirContentNegotiationTest extends TestCase
         $request = Request::create('/fhir/Patient', 'GET');
         $request->headers->set('Accept', 'text/html, application/fhir+json, application/json');
 
-        $next = fn(Request $req): JsonResponse => new JsonResponse(['resourceType' => 'Patient']);
+        $next = fn (Request $req): JsonResponse => new JsonResponse(['resourceType' => 'Patient']);
 
         $response = $this->middleware->handle($request, $next);
 

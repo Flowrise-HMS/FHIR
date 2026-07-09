@@ -13,7 +13,7 @@ class FhirValidatorTest extends TestCase
     {
         parent::setUp();
         $this->validator = new FhirValidator(
-            __DIR__ . '/../../Resources/schemas'
+            __DIR__.'/../../Resources/schemas'
         );
     }
 
@@ -39,7 +39,7 @@ class FhirValidatorTest extends TestCase
         $this->assertSame('error', $result['errors'][0]['severity']);
     }
 
-    public function test_wrong_resourceType_returns_error()
+    public function test_wrong_resource_type_returns_error()
     {
         $result = $this->validator->validate('Patient', [
             'resourceType' => 'Observation',

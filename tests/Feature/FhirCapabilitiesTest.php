@@ -2,6 +2,7 @@
 
 namespace Modules\FHIR\Tests\Feature;
 
+use Modules\FHIR\Contracts\FhirResourceContract;
 use Modules\FHIR\FhirRouting\FhirResourceRegistrar;
 use Modules\FHIR\Http\Controllers\CapabilityController;
 use PHPUnit\Framework\TestCase;
@@ -26,9 +27,9 @@ class FhirCapabilitiesTest extends TestCase
     public function test_metadata_lists_registered_resources()
     {
         $registrar = new FhirResourceRegistrar;
-        $t1 = $this->createStub(\Modules\FHIR\Contracts\FhirResourceContract::class);
+        $t1 = $this->createStub(FhirResourceContract::class);
         $t1->method('resourceType')->willReturn('Patient');
-        $t2 = $this->createStub(\Modules\FHIR\Contracts\FhirResourceContract::class);
+        $t2 = $this->createStub(FhirResourceContract::class);
         $t2->method('resourceType')->willReturn('Practitioner');
         $registrar->register('Patient', get_class($t1));
         $registrar->register('Practitioner', get_class($t2));
@@ -57,7 +58,7 @@ class FhirCapabilitiesTest extends TestCase
     public function test_metadata_includes_versioning_for_resources()
     {
         $registrar = new FhirResourceRegistrar;
-        $t = $this->createStub(\Modules\FHIR\Contracts\FhirResourceContract::class);
+        $t = $this->createStub(FhirResourceContract::class);
         $t->method('resourceType')->willReturn('Patient');
         $registrar->register('Patient', get_class($t));
 

@@ -5,14 +5,16 @@ namespace Modules\FHIR\FhirSearch;
 class SearchParameterParser
 {
     protected array $datePrefixes = ['eq', 'ne', 'lt', 'gt', 'le', 'ge', 'sa', 'eb'];
+
     protected int $maxCount = 100;
+
     protected int $defaultCount = 20;
 
     public function parse(array $queryParams): array
     {
         $params = [];
         $params['_count'] = $this->parseCount($queryParams['_count'] ?? null);
-        $params['_offset'] = (int)($queryParams['_offset'] ?? 0);
+        $params['_offset'] = (int) ($queryParams['_offset'] ?? 0);
         $params['_sort'] = $this->parseSort($queryParams['_sort'] ?? null);
 
         foreach ($queryParams as $key => $value) {
@@ -71,7 +73,7 @@ class SearchParameterParser
             return $this->defaultCount;
         }
 
-        return min((int)$value, $this->maxCount);
+        return min((int) $value, $this->maxCount);
     }
 
     protected function parseSort(?string $value): array

@@ -2,12 +2,13 @@
 
 namespace Modules\FHIR\FhirValidation;
 
-use Swaggest\JsonSchema\Schema;
 use Swaggest\JsonSchema\InvalidValue;
+use Swaggest\JsonSchema\Schema;
 
 class FhirValidator
 {
     protected string $schemaPath;
+
     protected ?Schema $fullSchema = null;
 
     public function __construct(?string $schemaPath = null)
@@ -25,15 +26,15 @@ class FhirValidator
                     [
                         'severity' => 'error',
                         'code' => 'invalid',
-                        'details' => ['text' => "Expected resourceType '{$resourceType}', got '" . ($actualType ?? 'null') . "'"],
+                        'details' => ['text' => "Expected resourceType '{$resourceType}', got '".($actualType ?? 'null')."'"],
                         'expression' => ["{$resourceType}.resourceType"],
                     ],
                 ],
             ];
         }
 
-        $schemaFile = $this->schemaPath . '/' . $resourceType . '.schema.json';
-        if (!file_exists($schemaFile)) {
+        $schemaFile = $this->schemaPath.'/'.$resourceType.'.schema.json';
+        if (! file_exists($schemaFile)) {
             return [
                 'valid' => false,
                 'errors' => [
@@ -49,6 +50,7 @@ class FhirValidator
         try {
             $this->loadFullSchema();
             $this->fullSchema->in(json_decode(json_encode($resource)));
+
             return ['valid' => true, 'errors' => []];
         } catch (InvalidValue $e) {
             return [
@@ -69,7 +71,7 @@ class FhirValidator
     {
         if ($this->fullSchema === null) {
             $schemaData = json_decode(
-                file_get_contents($this->schemaPath . '/fhir.schema.json')
+                file_get_contents($this->schemaPath.'/fhir.schema.json')
             );
             $this->fullSchema = Schema::import($schemaData);
         }

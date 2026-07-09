@@ -11,7 +11,7 @@ class SearchQueryBuilder
         foreach ($params['filters'] ?? [] as $filter) {
             $name = $filter['name'];
 
-            if (!isset($searchableParams[$name])) {
+            if (! isset($searchableParams[$name])) {
                 continue;
             }
 
@@ -19,6 +19,7 @@ class SearchQueryBuilder
 
             if (isset($config['relation'])) {
                 $this->applyRelationSearch($query, $filter, $config);
+
                 continue;
             }
 
@@ -42,20 +43,23 @@ class SearchQueryBuilder
 
         if ($prefix !== null) {
             $this->applyDateSearch($query, $column, $prefix, $value);
+
             return;
         }
 
         if ($modifier === 'exact') {
             $query->where($column, '=', $value);
+
             return;
         }
 
         if ($modifier === 'contains') {
-            $query->where($column, 'LIKE', '%' . $value . '%');
+            $query->where($column, 'LIKE', '%'.$value.'%');
+
             return;
         }
 
-        $query->where($column, 'LIKE', $value . '%');
+        $query->where($column, 'LIKE', $value.'%');
     }
 
     protected function applyDateSearch(Builder $query, string $column, string $prefix, string $value): void
@@ -79,7 +83,7 @@ class SearchQueryBuilder
             if ($modifier === 'exact') {
                 $q->where($column, '=', $value);
             } else {
-                $q->where($column, 'LIKE', $value . '%');
+                $q->where($column, 'LIKE', $value.'%');
             }
         });
     }

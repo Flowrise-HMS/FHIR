@@ -17,13 +17,13 @@ class FhirContentNegotiation
     {
         if (in_array($request->method(), ['POST', 'PUT', 'PATCH'])) {
             $ct = $request->header('Content-Type');
-            if ($ct && !in_array(explode(';', $ct)[0], $this->validContentTypes)) {
+            if ($ct && ! in_array(explode(';', $ct)[0], $this->validContentTypes)) {
                 return $this->responseFactory->unsupportedMediaType();
             }
         }
 
         $accept = $request->header('Accept');
-        if ($accept && $accept !== '*/*' && !in_array($accept, $this->validContentTypes)) {
+        if ($accept && $accept !== '*/*' && ! in_array($accept, $this->validContentTypes)) {
             $valid = false;
             foreach (explode(',', $accept) as $a) {
                 $a = trim(explode(';', $a)[0]);
@@ -32,7 +32,7 @@ class FhirContentNegotiation
                     break;
                 }
             }
-            if (!$valid) {
+            if (! $valid) {
                 return $this->responseFactory->notAcceptable();
             }
         }
