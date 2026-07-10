@@ -1,0 +1,75 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "required": ["resourceType"],
+    "properties": {
+        "resourceType": {
+            "type": "string",
+            "const": "Organization"
+        },
+        "id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "identifier": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "system": { "type": "string" },
+                    "value": { "type": "string" }
+                }
+            }
+        },
+        "active": {
+            "type": "boolean"
+        },
+        "type": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "coding": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "system": { "type": "string" },
+                                "code": { "type": "string" },
+                                "display": { "type": "string" }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "name": {
+            "type": "string"
+        },
+        "alias": {
+            "type": "array",
+            "items": { "type": "string" }
+        },
+        "description": {
+            "type": "string"
+        },
+        "contact": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "address": {
+                        "type": "object",
+                        "properties": {
+                            "country": { "type": "string" }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "anyOf": [
+        { "required": ["name"] },
+        { "required": ["identifier"] }
+    ]
+}

@@ -1,0 +1,337 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "required": ["resourceType"],
+    "properties": {
+        "resourceType": {
+            "type": "string",
+            "const": "Observation"
+        },
+        "id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "status": {
+            "type": "string",
+            "enum": ["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"]
+        },
+        "category": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "coding": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "system": { "type": "string" },
+                                "code": { "type": "string" },
+                                "display": { "type": "string" }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "code": {
+            "type": "object",
+            "properties": {
+                "coding": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "system": { "type": "string" },
+                            "code": { "type": "string" },
+                            "display": { "type": "string" }
+                        }
+                    }
+                },
+                "text": { "type": "string" }
+            }
+        },
+        "subject": {
+            "type": "object",
+            "properties": {
+                "reference": { "type": "string" }
+            }
+        },
+        "encounter": {
+            "type": "object",
+            "properties": {
+                "reference": { "type": "string" }
+            }
+        },
+        "basedOn": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "reference": { "type": "string" }
+                }
+            }
+        },
+        "effectiveDateTime": { "type": "string" },
+        "issued": { "type": "string" },
+        "performer": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "reference": { "type": "string" },
+                    "display": { "type": "string" }
+                }
+            }
+        },
+        "valueQuantity": {
+            "type": "object",
+            "properties": {
+                "value": { "type": "number" },
+                "unit": { "type": "string" },
+                "system": { "type": "string" },
+                "code": { "type": "string" }
+            }
+        },
+        "valueCodeableConcept": {
+            "type": "object",
+            "properties": {
+                "coding": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "code": { "type": "string" },
+                            "display": { "type": "string" }
+                        }
+                    }
+                },
+                "text": { "type": "string" }
+            }
+        },
+        "valueString": { "type": "string" },
+        "valueBoolean": { "type": "boolean" },
+        "valueInteger": { "type": "integer" },
+        "valueRange": {
+            "type": "object",
+            "properties": {
+                "low": {
+                    "type": "object",
+                    "properties": {
+                        "value": { "type": "number" }
+                    }
+                },
+                "high": {
+                    "type": "object",
+                    "properties": {
+                        "value": { "type": "number" }
+                    }
+                }
+            }
+        },
+        "dataAbsentReason": {
+            "type": "object",
+            "properties": {
+                "coding": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "system": { "type": "string" },
+                            "code": { "type": "string" }
+                        }
+                    }
+                }
+            }
+        },
+        "interpretation": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "coding": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "system": { "type": "string" },
+                                "code": { "type": "string" },
+                                "display": { "type": "string" }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "note": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "text": { "type": "string" }
+                }
+            }
+        },
+        "specimen": {
+            "type": "object",
+            "properties": {
+                "reference": { "type": "string" }
+            }
+        },
+        "referenceRange": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "low": {
+                        "type": "object",
+                        "properties": {
+                            "value": { "type": "number" }
+                        }
+                    },
+                    "high": {
+                        "type": "object",
+                        "properties": {
+                            "value": { "type": "number" }
+                        }
+                    },
+                    "text": { "type": "string" }
+                }
+            }
+        },
+        "hasMember": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "reference": { "type": "string" }
+                }
+            }
+        },
+        "component": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "object",
+                        "properties": {
+                            "coding": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "system": { "type": "string" },
+                                        "code": { "type": "string" },
+                                        "display": { "type": "string" }
+                                    }
+                                }
+                            },
+                            "text": { "type": "string" }
+                        }
+                    },
+                    "valueQuantity": {
+                        "type": "object",
+                        "properties": {
+                            "value": { "type": "number" },
+                            "unit": { "type": "string" },
+                            "system": { "type": "string" },
+                            "code": { "type": "string" }
+                        }
+                    },
+                    "valueCodeableConcept": {
+                        "type": "object",
+                        "properties": {
+                            "coding": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": { "type": "string" },
+                                        "display": { "type": "string" }
+                                    }
+                                }
+                            },
+                            "text": { "type": "string" }
+                        }
+                    },
+                    "valueString": { "type": "string" },
+                    "valueBoolean": { "type": "boolean" },
+                    "valueInteger": { "type": "integer" },
+                    "valueRange": {
+                        "type": "object",
+                        "properties": {
+                            "low": {
+                                "type": "object",
+                                "properties": {
+                                    "value": { "type": "number" }
+                                }
+                            },
+                            "high": {
+                                "type": "object",
+                                "properties": {
+                                    "value": { "type": "number" }
+                                }
+                            }
+                        }
+                    },
+                    "dataAbsentReason": {
+                        "type": "object",
+                        "properties": {
+                            "coding": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "system": { "type": "string" },
+                                        "code": { "type": "string" }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "interpretation": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "coding": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "system": { "type": "string" },
+                                            "code": { "type": "string" },
+                                            "display": { "type": "string" }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "referenceRange": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "low": {
+                                    "type": "object",
+                                    "properties": {
+                                        "value": { "type": "number" }
+                                    }
+                                },
+                                "high": {
+                                    "type": "object",
+                                    "properties": {
+                                        "value": { "type": "number" }
+                                    }
+                                },
+                                "text": { "type": "string" }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

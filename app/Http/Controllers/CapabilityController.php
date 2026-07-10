@@ -31,7 +31,7 @@ class CapabilityController extends Controller
             'rest' => [
                 [
                     'mode' => 'server',
-                    'documentation' => 'FlowRise HMS FHIR R4 API',
+                    'documentation' => 'FlowRise HMS FHIR R4 API (with selected R5 resource support)',
                     'security' => [
                         'description' => 'Bearer token authentication via HTTP Authorization header (Sanctum)',
                         'service' => [
@@ -49,13 +49,10 @@ class CapabilityController extends Controller
                     ],
                     'resource' => array_map(fn ($entry) => [
                         'type' => $entry['resource_type'],
-                        'interaction' => [
-                            ['code' => 'read'],
-                            ['code' => 'search-type'],
-                            ['code' => 'create'],
-                            ['code' => 'update'],
-                            ['code' => 'delete'],
-                        ],
+                        'interaction' => array_map(
+                            fn ($code) => ['code' => $code],
+                            $entry['interactions'] ?? ['read', 'search-type', 'create', 'update', 'delete']
+                        ),
                         'versioning' => 'no-version',
                         'readHistory' => false,
                         'updateCreate' => false,

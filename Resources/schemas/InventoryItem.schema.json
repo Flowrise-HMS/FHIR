@@ -1,0 +1,198 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "required": ["resourceType"],
+    "properties": {
+        "resourceType": {
+            "type": "string",
+            "const": "InventoryItem"
+        },
+        "id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "identifier": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "system": { "type": "string" },
+                    "type": {
+                        "type": "object",
+                        "properties": {
+                            "coding": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "system": { "type": "string" },
+                                        "code": { "type": "string" }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "value": { "type": "string" }
+                }
+            }
+        },
+        "status": {
+            "type": "string",
+            "enum": ["active", "inactive", "entered-in-error", "unknown"]
+        },
+        "category": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "coding": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "system": { "type": "string" },
+                                "code": { "type": "string", "enum": ["supplies", "equipment", "consumables", "general"] },
+                                "display": { "type": "string" }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "code": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "coding": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "system": { "type": "string" },
+                                "code": { "type": "string" }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "name": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "nameType": {
+                        "type": "object",
+                        "properties": {
+                            "coding": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "system": { "type": "string" },
+                                        "code": { "type": "string" }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "language": { "type": "string" },
+                    "name": { "type": "string" }
+                }
+            }
+        },
+        "description": {
+            "type": "object",
+            "properties": {
+                "language": { "type": "string" },
+                "description": { "type": "string" }
+            }
+        },
+        "baseUnit": {
+            "type": "object",
+            "properties": {
+                "coding": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "system": { "type": "string" },
+                            "code": { "type": "string" },
+                            "display": { "type": "string" }
+                        }
+                    }
+                }
+            }
+        },
+        "netContent": {
+            "type": "object",
+            "properties": {
+                "value": { "type": "number" },
+                "unit": { "type": "string" },
+                "system": { "type": "string" },
+                "code": { "type": "string" }
+            }
+        },
+        "characteristic": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "characteristicType": {
+                        "type": "object",
+                        "properties": {
+                            "coding": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "system": { "type": "string" },
+                                        "code": { "type": "string" }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "valueCodeableConcept": {
+                        "type": "object",
+                        "properties": {
+                            "coding": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": { "type": "string" },
+                                        "display": { "type": "string" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "instance": {
+            "type": "object",
+            "properties": {
+                "lotNumber": { "type": "string" },
+                "expiry": { "type": "string", "format": "date-time" },
+                "location": {
+                    "type": "object",
+                    "properties": {
+                        "reference": { "type": "string", "pattern": "^Location/" }
+                    }
+                }
+            }
+        },
+        "productReference": {
+            "type": "object",
+            "properties": {
+                "reference": { "type": "string", "pattern": "^Medication/" }
+            }
+        }
+    },
+    "anyOf": [
+        { "required": ["name"] }
+    ]
+}

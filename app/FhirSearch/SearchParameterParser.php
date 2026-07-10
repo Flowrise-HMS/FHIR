@@ -6,6 +6,12 @@ class SearchParameterParser
 {
     protected array $datePrefixes = ['eq', 'ne', 'lt', 'gt', 'le', 'ge', 'sa', 'eb'];
 
+    protected array $resourcePrefixes = [
+        'Patient/', 'Practitioner/', 'PractitionerRole/',
+        'Appointment/', 'AppointmentResponse/',
+        'Location/', 'Organization/', 'RelatedPerson/', 'Device/',
+    ];
+
     protected int $maxCount = 100;
 
     protected int $defaultCount = 20;
@@ -58,6 +64,8 @@ class SearchParameterParser
             $searchValue = $parts[1] ?? '';
         }
 
+        $searchValue = $this->stripReferencePrefix($searchValue);
+
         return [
             'name' => $name,
             'value' => $searchValue,
@@ -65,6 +73,17 @@ class SearchParameterParser
             'prefix' => $prefix,
             'system' => $system,
         ];
+    }
+
+    protected function stripReferencePrefix(string $value): string
+    {
+        foreach ($this->resourcePrefixes as $prefix) {
+            if (str_starts_with($value, $prefix)) {
+                return substr($value, strlen($prefix));
+            }
+        }
+
+        return $value;
     }
 
     protected function parseCount(?string $value): int

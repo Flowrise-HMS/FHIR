@@ -47,9 +47,19 @@ class FhirValidator
             ];
         }
 
-        try {
+        $schemaData = json_decode(file_get_contents($schemaFile));
+        $ref = $schemaData->{'$ref'} ?? null;
+        $usesFullSchema = is_string($ref) && str_starts_with($ref, 'fhir.schema.json');
+
+        if ($usesFullSchema) {
             $this->loadFullSchema();
-            $this->fullSchema->in(json_decode(json_encode($resource)));
+            $schema = $this->fullSchema;
+        } else {
+            $schema = Schema::import($schemaData);
+        }
+
+        try {
+            $schema->in(json_decode(json_encode($resource)));
 
             return ['valid' => true, 'errors' => []];
         } catch (InvalidValue $e) {

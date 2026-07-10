@@ -1,0 +1,129 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "required": ["resourceType"],
+    "properties": {
+        "resourceType": {
+            "type": "string",
+            "const": "AllergyIntolerance"
+        },
+        "id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "clinicalStatus": {
+            "type": "object",
+            "properties": {
+                "coding": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "system": { "type": "string" },
+                            "code": {
+                                "type": "string",
+                                "enum": ["active", "inactive", "resolved"]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "verificationStatus": {
+            "type": "object",
+            "properties": {
+                "coding": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "system": { "type": "string" },
+                            "code": {
+                                "type": "string",
+                                "enum": ["unconfirmed", "confirmed", "refuted", "entered-in-error"]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "category": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "enum": ["food", "medication", "environment", "biologic"]
+            }
+        },
+        "code": {
+            "type": "object",
+            "properties": {
+                "coding": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "code": { "type": "string" },
+                            "display": { "type": "string" }
+                        }
+                    }
+                },
+                "text": { "type": "string" }
+            }
+        },
+        "patient": {
+            "type": "object",
+            "properties": {
+                "reference": { "type": "string", "pattern": "^Patient/" }
+            }
+        },
+        "criticality": {
+            "type": "string",
+            "enum": ["low", "high", "unable-to-assess"]
+        },
+        "reaction": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "manifestation": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "text": { "type": "string" }
+                            }
+                        }
+                    },
+                    "severity": {
+                        "type": "string",
+                        "enum": ["mild", "moderate", "severe"]
+                    }
+                }
+            }
+        },
+        "recordedDate": {
+            "type": "string",
+            "format": "date-time"
+        },
+        "onsetDateTime": {
+            "type": "string",
+            "format": "date-time"
+        },
+        "lastOccurrence": {
+            "type": "string",
+            "format": "date-time"
+        },
+        "note": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "text": { "type": "string" }
+                }
+            }
+        }
+    },
+    "anyOf": [
+        { "required": ["patient", "code"] }
+    ]
+}

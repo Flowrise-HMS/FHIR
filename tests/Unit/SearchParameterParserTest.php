@@ -154,4 +154,18 @@ class SearchParameterParserTest extends TestCase
 
         $this->assertSame(0, $result['_offset']);
     }
+
+    public function test_strips_reference_prefix(): void
+    {
+        $result = $this->parser->parse(['patient' => 'Patient/abc-123']);
+
+        $this->assertSame('abc-123', $result['filters'][0]['value']);
+    }
+
+    public function test_passes_through_value_without_prefix(): void
+    {
+        $result = $this->parser->parse(['patient' => 'abc-123']);
+
+        $this->assertSame('abc-123', $result['filters'][0]['value']);
+    }
 }

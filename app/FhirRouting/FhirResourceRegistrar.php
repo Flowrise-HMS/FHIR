@@ -6,11 +6,12 @@ class FhirResourceRegistrar
 {
     protected array $resources = [];
 
-    public function register(string $resourceType, string $transformerClass): void
+    public function register(string $resourceType, string $transformerClass, array $interactions = ['read', 'search-type', 'create', 'update', 'delete']): void
     {
         $this->resources[$resourceType] = [
             'resource_type' => $resourceType,
             'transformer_class' => $transformerClass,
+            'interactions' => $interactions,
         ];
     }
 
@@ -27,5 +28,10 @@ class FhirResourceRegistrar
     public function has(string $resourceType): bool
     {
         return isset($this->resources[$resourceType]);
+    }
+
+    public function getInteractions(string $resourceType): array
+    {
+        return $this->resources[$resourceType]['interactions'] ?? ['read', 'search-type'];
     }
 }

@@ -8,5 +8,5 @@
         "Modules\\FHIR\\Providers\\FhirServiceProvider"
     ],
     "files": [],
-    "requires": []
+    "requires": ["Modules\\Appointment"]
 }
