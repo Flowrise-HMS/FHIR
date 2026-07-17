@@ -1,7 +1,7 @@
 {
     "name": "FHIR",
     "alias": "fhir",
-    "description": "FHIR R4 server module providing Patient, Practitioner, and PractitionerRole resources with full CRUD, FHIR search, and validation.",
+    "description": "FHIR R4 API (/api/v1/fhir): Patient, Practitioner, and PractitionerRole full CRUD; read/search for Organization, Location, HealthcareService, Encounter, Condition, AllergyIntolerance, Observation, Appointment, AppointmentResponse, and InventoryItem.",
     "keywords": ["fhir", "hl7", "interoperability", "healthcare", "api"],
     "priority": 1,
     "providers": [
