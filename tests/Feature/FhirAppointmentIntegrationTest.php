@@ -2,6 +2,7 @@
 
 namespace Modules\FHIR\Tests\Feature;
 
+use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Modules\Appointment\Models\Appointment;
 use Modules\Appointment\Models\AppointmentParticipant;
@@ -24,6 +25,8 @@ class FhirAppointmentIntegrationTest extends TestCase
 
     private AppointmentParticipant $participant;
 
+    private User $user;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -31,6 +34,9 @@ class FhirAppointmentIntegrationTest extends TestCase
         $this->migrateModules(['Core', 'Patient', 'Staff', 'Appointment', 'FHIR']);
 
         $this->branch = Branch::factory()->create();
+        $this->user = User::factory()->create(['branch_id' => $this->branch->id]);
+        $this->actingAs($this->user);
+
         $this->patient = Patient::factory()->create();
         $this->practitioner = Staff::factory()->create();
 
@@ -82,10 +88,16 @@ class FhirAppointmentIntegrationTest extends TestCase
         ]);
         $response->assertJsonStructure([
             'resourceType', 'type', 'total', 'entry' => [
-                ['resource' => ['resourceType' => 'Appointment']],
+                '*' => [
+                    'resource' => [
+                        'resourceType', 'id', 'status',
+                    ],
+                ],
             ],
         ]);
         $this->assertGreaterThanOrEqual(1, $response->json('total'));
+        $this->assertSame('Appointment', $response->json('entry.0.resource.resourceType'));
+        $this->assertSame($this->appointment->id, $response->json('entry.0.resource.id'));
     }
 
     public function test_can_read_appointment_response(): void
