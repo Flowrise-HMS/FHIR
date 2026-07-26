@@ -1,7 +1,7 @@
 {
     "name": "flowrise-hms/fhir",
-    "description": "FHIR R4 server module for FlowRise HMS",
     "type": "laravel-module",
+    "description": "FHIR R4 server module for FlowRise HMS",
     "keywords": ["fhir", "hl7", "interoperability", "healthcare", "api"],
     "license": "MIT",
     "authors": [
@@ -19,6 +19,7 @@
     ],
     "require": {
         "php": "^8.4",
+        "flowrise-hms/core": "dev-main",
         "swaggest/json-schema": "^0.12"
     },
     "extra": {
