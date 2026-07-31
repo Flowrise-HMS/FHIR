@@ -1,0 +1,22 @@
+{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "id": "http://hl7.org/fhir/JsonSchema/CarePlan",
+    "description": "FHIR R4 CarePlan resource (standalone subset for FlowRise HMS)",
+    "type": "object",
+    "required": ["resourceType", "status", "intent", "subject"],
+    "properties": {
+        "resourceType": { "type": "string", "enum": ["CarePlan"] },
+        "id": { "type": "string" },
+        "status": { "type": "string", "enum": ["draft", "active", "on-hold", "revoked", "completed", "entered-in-error", "unknown"] },
+        "intent": { "type": "string", "enum": ["proposal", "plan", "order", "option"] },
+        "category": { "type": "array", "items": { "type": "object" } },
+        "subject": { "type": "object" },
+        "encounter": { "type": "object" },
+        "period": { "type": "object" },
+        "custodian": { "type": "object" },
+        "addresses": { "type": "array", "items": { "type": "object" } },
+        "goal": { "type": "array", "items": { "type": "object" } },
+        "activity": { "type": "array", "items": { "type": "object" } },
+        "note": { "type": "array", "items": { "type": "object" } }
+    }
+}

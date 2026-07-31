@@ -1,0 +1,19 @@
+{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "id": "http://hl7.org/fhir/JsonSchema/Goal",
+    "description": "FHIR R4 Goal resource (standalone subset for FlowRise HMS)",
+    "type": "object",
+    "required": ["resourceType", "lifecycleStatus", "description", "subject"],
+    "properties": {
+        "resourceType": { "type": "string", "enum": ["Goal"] },
+        "id": { "type": "string" },
+        "lifecycleStatus": { "type": "string", "enum": ["proposed", "planned", "accepted", "active", "on-hold", "completed", "cancelled", "entered-in-error", "rejected"] },
+        "achievementStatus": { "type": "object" },
+        "description": { "type": "object" },
+        "subject": { "type": "object" },
+        "startDate": { "type": "string" },
+        "target": { "type": "array", "items": { "type": "object" } },
+        "addresses": { "type": "array", "items": { "type": "object" } },
+        "note": { "type": "array", "items": { "type": "object" } }
+    }
+}
