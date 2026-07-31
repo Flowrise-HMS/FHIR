@@ -5,8 +5,10 @@ namespace Modules\FHIR\Providers;
 use Modules\Appointment\Classes\Fhir\FhirAppointmentResponseTransformer;
 use Modules\Appointment\Classes\Fhir\FhirAppointmentTransformer;
 use Modules\Clinical\Classes\Fhir\FhirAllergyIntoleranceTransformer;
+use Modules\Clinical\Classes\Fhir\FhirCarePlanTransformer;
 use Modules\Clinical\Classes\Fhir\FhirConditionTransformer;
 use Modules\Clinical\Classes\Fhir\FhirEncounterTransformer;
+use Modules\Clinical\Classes\Fhir\FhirGoalTransformer;
 use Modules\Core\Classes\Fhir\FhirHealthcareServiceTransformer;
 use Modules\Core\Classes\Fhir\FhirLocationTransformer;
 use Modules\Core\Classes\Fhir\FhirOrganizationTransformer;
@@ -61,6 +63,8 @@ class FhirServiceProvider extends ModuleServiceProvider
             $registrar->register('PractitionerRole', FhirPractitionerRoleTransformer::class);
             $registrar->register('Appointment', FhirAppointmentTransformer::class, ['read', 'search-type']);
             $registrar->register('AppointmentResponse', FhirAppointmentResponseTransformer::class, ['read', 'search-type']);
+            $registrar->register('CarePlan', FhirCarePlanTransformer::class, ['read', 'search-type']);
+            $registrar->register('Goal', FhirGoalTransformer::class, ['read', 'search-type']);
             if (class_exists(FhirOrganizationTransformer::class)) {
                 $registrar->register('Organization', FhirOrganizationTransformer::class, ['read', 'search-type']);
             }
