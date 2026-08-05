@@ -13,12 +13,12 @@ See [Module Status](../../docs/shared/module-status.md) for the canonical rollou
 - **API base:** `/api/v1/fhir/{resource}` (Sanctum-authenticated)
 - **Metadata:** `GET /api/v1/fhir/metadata` (capability statement)
 - **Full CRUD:** Patient (Patient module transformer), Practitioner and PractitionerRole (Staff module transformers)
-- **Read/search:** Organization, Location, HealthcareService (Core transformers); Encounter, Condition, AllergyIntolerance (Clinical); Observation (Diagnostics); Appointment, AppointmentResponse (Appointment); InventoryItem (Inventory)
+- **Read/search:** Organization, Location, HealthcareService (Core transformers); Encounter, Condition, AllergyIntolerance, CarePlan, Goal (Clinical); Observation (Diagnostics); Appointment, AppointmentResponse (Appointment); InventoryItem (Inventory)
 - **Infrastructure:** `FhirResourceRegistrar`, `FhirValidator`, search parameter handling, content negotiation
 
 ## What is deferred
 
-- Additional FHIR resources (DiagnosticReport, Claim, Coverage, ServiceRequest, Medication*, Schedule, Slot, etc.)
+- Additional FHIR resources (DiagnosticReport, Claim, Coverage, ServiceRequest, Medication*, DocumentReference, Schedule, Slot, etc.)
 - Full CRUD for resources currently exposed as read/search only
 - SMART on FHIR authentication
 - Bulk data export (`$export`)
@@ -34,4 +34,4 @@ See [Module Status](../../docs/shared/module-status.md) for the canonical rollou
 - **Namespace:** `Modules\FHIR\...`
 - **Service provider:** `Modules\FHIR\Providers\FhirServiceProvider`
 - **Routes:** `Modules/FHIR/routes/api.php`
-- **Tests:** `Modules/FHIR/tests/` (capability, appointment integration, infrastructure unit tests); domain modules include transformer unit tests
+- **Tests:** `Modules/FHIR/tests/` (capability, appointment/care-plan integration, infrastructure unit tests); domain modules include transformer unit tests
