@@ -2,17 +2,7 @@
 
 namespace Modules\FHIR\Providers;
 
-use Modules\Appointment\Classes\Fhir\FhirAppointmentResponseTransformer;
-use Modules\Appointment\Classes\Fhir\FhirAppointmentTransformer;
-use Modules\Clinical\Classes\Fhir\FhirAllergyIntoleranceTransformer;
-use Modules\Clinical\Classes\Fhir\FhirCarePlanTransformer;
-use Modules\Clinical\Classes\Fhir\FhirConditionTransformer;
-use Modules\Clinical\Classes\Fhir\FhirEncounterTransformer;
-use Modules\Clinical\Classes\Fhir\FhirGoalTransformer;
-use Modules\Core\Classes\Fhir\FhirHealthcareServiceTransformer;
-use Modules\Core\Classes\Fhir\FhirLocationTransformer;
-use Modules\Core\Classes\Fhir\FhirOrganizationTransformer;
-use Modules\Diagnostics\Classes\Fhir\FhirObservationTransformer;
+use Modules\Core\Support\ModuleAvailability;
 use Modules\FHIR\FhirResponse\FhirResponseFactory;
 use Modules\FHIR\FhirRouting\FhirResourceRegistrar;
 use Modules\FHIR\FhirSearch\PaginationHandler;
@@ -20,10 +10,6 @@ use Modules\FHIR\FhirSearch\SearchParameterParser;
 use Modules\FHIR\FhirSearch\SearchQueryBuilder;
 use Modules\FHIR\FhirValidation\FhirValidator;
 use Modules\FHIR\Http\Middleware\FhirContentNegotiation;
-use Modules\Inventory\Classes\Fhir\FhirInventoryItemTransformer;
-use Modules\Patient\Classes\Fhir\FhirPatientTransformer;
-use Modules\Staff\Classes\Fhir\FhirPractitionerRoleTransformer;
-use Modules\Staff\Classes\Fhir\FhirPractitionerTransformer;
 use Nwidart\Modules\Support\ModuleServiceProvider;
 
 class FhirServiceProvider extends ModuleServiceProvider
@@ -57,45 +43,44 @@ class FhirServiceProvider extends ModuleServiceProvider
         $this->app->singleton(SearchQueryBuilder::class);
         $this->app->singleton(PaginationHandler::class);
 
-        $this->app->resolving(FhirResourceRegistrar::class, function ($registrar) {
-            $registrar->register('Patient', FhirPatientTransformer::class);
-            $registrar->register('Practitioner', FhirPractitionerTransformer::class);
-            $registrar->register('PractitionerRole', FhirPractitionerRoleTransformer::class);
-            $registrar->register('Appointment', FhirAppointmentTransformer::class, ['read', 'search-type']);
-            $registrar->register('AppointmentResponse', FhirAppointmentResponseTransformer::class, ['read', 'search-type']);
-            $registrar->register('CarePlan', FhirCarePlanTransformer::class, ['read', 'search-type']);
-            $registrar->register('Goal', FhirGoalTransformer::class, ['read', 'search-type']);
-            if (class_exists(FhirOrganizationTransformer::class)) {
-                $registrar->register('Organization', FhirOrganizationTransformer::class, ['read', 'search-type']);
-            }
-
-            if (class_exists(FhirLocationTransformer::class)) {
-                $registrar->register('Location', FhirLocationTransformer::class, ['read', 'search-type']);
-            }
-
-            if (class_exists(FhirHealthcareServiceTransformer::class)) {
-                $registrar->register('HealthcareService', FhirHealthcareServiceTransformer::class, ['read', 'search-type']);
-            }
-
-            if (class_exists(FhirEncounterTransformer::class)) {
-                $registrar->register('Encounter', FhirEncounterTransformer::class, ['read', 'search-type']);
-            }
-
-            if (class_exists(FhirObservationTransformer::class)) {
-                $registrar->register('Observation', FhirObservationTransformer::class, ['read', 'search-type']);
-            }
-
-            if (class_exists(FhirConditionTransformer::class)) {
-                $registrar->register('Condition', FhirConditionTransformer::class, ['read', 'search-type']);
-            }
-
-            if (class_exists(FhirAllergyIntoleranceTransformer::class)) {
-                $registrar->register('AllergyIntolerance', FhirAllergyIntoleranceTransformer::class, ['read', 'search-type']);
-            }
-
-            if (class_exists(FhirInventoryItemTransformer::class)) {
-                $registrar->register('InventoryItem', FhirInventoryItemTransformer::class, ['read', 'search-type']);
-            }
+        $this->app->resolving(FhirResourceRegistrar::class, function (FhirResourceRegistrar $registrar): void {
+            $this->registerSoftTransformers($registrar);
         });
+    }
+
+    protected function registerSoftTransformers(FhirResourceRegistrar $registrar): void
+    {
+        /**
+         * @var list<array{0: string, 1: class-string, 2: list<string>, 3: ?string}>
+         */
+        $transformers = [
+            ['Patient', 'Modules\\Patient\\Classes\\Fhir\\FhirPatientTransformer', ['read', 'search-type', 'create', 'update', 'delete'], 'Patient'],
+            ['Practitioner', 'Modules\\Staff\\Classes\\Fhir\\FhirPractitionerTransformer', ['read', 'search-type', 'create', 'update', 'delete'], 'Staff'],
+            ['PractitionerRole', 'Modules\\Staff\\Classes\\Fhir\\FhirPractitionerRoleTransformer', ['read', 'search-type', 'create', 'update', 'delete'], 'Staff'],
+            ['Appointment', 'Modules\\Appointment\\Classes\\Fhir\\FhirAppointmentTransformer', ['read', 'search-type'], 'Appointment'],
+            ['AppointmentResponse', 'Modules\\Appointment\\Classes\\Fhir\\FhirAppointmentResponseTransformer', ['read', 'search-type'], 'Appointment'],
+            ['CarePlan', 'Modules\\Clinical\\Classes\\Fhir\\FhirCarePlanTransformer', ['read', 'search-type'], 'Clinical'],
+            ['Goal', 'Modules\\Clinical\\Classes\\Fhir\\FhirGoalTransformer', ['read', 'search-type'], 'Clinical'],
+            ['Organization', 'Modules\\Core\\Classes\\Fhir\\FhirOrganizationTransformer', ['read', 'search-type'], null],
+            ['Location', 'Modules\\Core\\Classes\\Fhir\\FhirLocationTransformer', ['read', 'search-type'], null],
+            ['HealthcareService', 'Modules\\Core\\Classes\\Fhir\\FhirHealthcareServiceTransformer', ['read', 'search-type'], null],
+            ['Encounter', 'Modules\\Clinical\\Classes\\Fhir\\FhirEncounterTransformer', ['read', 'search-type'], 'Clinical'],
+            ['Observation', 'Modules\\Diagnostics\\Classes\\Fhir\\FhirObservationTransformer', ['read', 'search-type'], 'Diagnostics'],
+            ['Condition', 'Modules\\Clinical\\Classes\\Fhir\\FhirConditionTransformer', ['read', 'search-type'], 'Clinical'],
+            ['AllergyIntolerance', 'Modules\\Clinical\\Classes\\Fhir\\FhirAllergyIntoleranceTransformer', ['read', 'search-type'], 'Clinical'],
+            ['InventoryItem', 'Modules\\Inventory\\Classes\\Fhir\\FhirInventoryItemTransformer', ['read', 'search-type'], 'Inventory'],
+        ];
+
+        foreach ($transformers as [$resourceType, $transformerClass, $interactions, $module]) {
+            if ($module !== null && ! ModuleAvailability::enabled($module)) {
+                continue;
+            }
+
+            if (! class_exists($transformerClass)) {
+                continue;
+            }
+
+            $registrar->register($resourceType, $transformerClass, $interactions);
+        }
     }
 }
