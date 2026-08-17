@@ -61,6 +61,7 @@ class FhirServiceProvider extends ModuleServiceProvider
             ['AppointmentResponse', 'Modules\\Appointment\\Classes\\Fhir\\FhirAppointmentResponseTransformer', ['read', 'search-type'], 'Appointment'],
             ['CarePlan', 'Modules\\Clinical\\Classes\\Fhir\\FhirCarePlanTransformer', ['read', 'search-type'], 'Clinical'],
             ['Goal', 'Modules\\Clinical\\Classes\\Fhir\\FhirGoalTransformer', ['read', 'search-type'], 'Clinical'],
+            ['EpisodeOfCare', 'Modules\\MCH\\Classes\\Fhir\\FhirEpisodeOfCareTransformer', ['read', 'search-type'], 'MCH'],
             ['Organization', 'Modules\\Core\\Classes\\Fhir\\FhirOrganizationTransformer', ['read', 'search-type'], null],
             ['Location', 'Modules\\Core\\Classes\\Fhir\\FhirLocationTransformer', ['read', 'search-type'], null],
             ['HealthcareService', 'Modules\\Core\\Classes\\Fhir\\FhirHealthcareServiceTransformer', ['read', 'search-type'], null],

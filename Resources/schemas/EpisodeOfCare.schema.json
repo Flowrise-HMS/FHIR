@@ -1,0 +1,29 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://flowrise-hms.test/schemas/EpisodeOfCare.schema.json",
+    "title": "EpisodeOfCare",
+    "description": "Pregnancy episodes (MCH) exposed as FHIR EpisodeOfCare resources.",
+    "type": "object",
+    "required": ["resourceType", "status", "patient"],
+    "properties": {
+        "resourceType": { "const": "EpisodeOfCare" },
+        "id": { "type": "string" },
+        "status": {
+            "type": "string",
+            "enum": ["planned", "waitlist", "active", "onhold", "finished", "cancelled", "entered-in-error"]
+        },
+        "patient": {
+            "type": "object",
+            "properties": {
+                "reference": { "type": "string" }
+            }
+        },
+        "period": {
+            "type": "object",
+            "properties": {
+                "start": { "type": "string", "format": "date-time" },
+                "end": { "type": "string", "format": "date-time" }
+            }
+        }
+    }
+}
