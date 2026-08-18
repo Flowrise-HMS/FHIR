@@ -62,6 +62,7 @@ class FhirServiceProvider extends ModuleServiceProvider
             ['CarePlan', 'Modules\\Clinical\\Classes\\Fhir\\FhirCarePlanTransformer', ['read', 'search-type'], 'Clinical'],
             ['Goal', 'Modules\\Clinical\\Classes\\Fhir\\FhirGoalTransformer', ['read', 'search-type'], 'Clinical'],
             ['EpisodeOfCare', 'Modules\\MCH\\Classes\\Fhir\\FhirEpisodeOfCareTransformer', ['read', 'search-type'], 'MCH'],
+            ['Immunization', 'Modules\\MCH\\Classes\\Fhir\\FhirImmunizationTransformer', ['read', 'create'], 'MCH'],
             ['Organization', 'Modules\\Core\\Classes\\Fhir\\FhirOrganizationTransformer', ['read', 'search-type'], null],
             ['Location', 'Modules\\Core\\Classes\\Fhir\\FhirLocationTransformer', ['read', 'search-type'], null],
             ['HealthcareService', 'Modules\\Core\\Classes\\Fhir\\FhirHealthcareServiceTransformer', ['read', 'search-type'], null],

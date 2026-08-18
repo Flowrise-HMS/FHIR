@@ -1,0 +1,68 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://flowrise-hms.test/schemas/Immunization.schema.json",
+    "title": "Immunization",
+    "description": "MCH immunization records exposed as FHIR Immunization resources.",
+    "type": "object",
+    "required": ["resourceType", "status", "vaccineCode", "patient"],
+    "properties": {
+        "resourceType": { "const": "Immunization" },
+        "id": { "type": "string" },
+        "status": {
+            "type": "string",
+            "enum": ["completed", "entered-in-error", "not-done"]
+        },
+        "vaccineCode": {
+            "type": "object",
+            "properties": {
+                "coding": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "system": { "type": "string" },
+                            "code": { "type": "string" },
+                            "display": { "type": "string" }
+                        }
+                    }
+                }
+            }
+        },
+        "patient": {
+            "type": "object",
+            "properties": {
+                "reference": { "type": "string" }
+            }
+        },
+        "occurrenceDateTime": { "type": "string", "format": "date-time" },
+        "lotNumber": { "type": ["string", "null"] },
+        "site": {
+            "type": ["object", "null"],
+            "properties": {
+                "coding": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "display": { "type": "string" }
+                        }
+                    }
+                }
+            }
+        },
+        "route": {
+            "type": ["object", "null"],
+            "properties": {
+                "coding": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "display": { "type": "string" }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
