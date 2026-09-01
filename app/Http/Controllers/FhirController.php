@@ -6,6 +6,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Modules\FHIR\Contracts\FhirResourceContract;
+use Modules\FHIR\Contracts\FhirWritableResourceContract;
 use Modules\FHIR\FhirResponse\FhirResponseFactory;
 use Modules\FHIR\FhirRouting\FhirResourceRegistrar;
 use Modules\FHIR\FhirSearch\SearchParameterParser;
@@ -73,9 +74,17 @@ class FhirController extends Controller
         if (! empty($bv)) {
             return $this->responseFactory->validationError($bv);
         }
-        $attrs = $t->fromFhir($fhir);
+        if (! $t instanceof FhirWritableResourceContract) {
+            return $this->notSupported($resourceType, 'create');
+        }
 
-        return $this->responseFactory->created($fhir, $resourceType, '');
+        $model = $t->createFromFhir($fhir);
+
+        return $this->responseFactory->created(
+            $t->toFhir($model),
+            $resourceType,
+            (string) $model->getKey(),
+        );
     }
 
     public function update(string $resourceType, string $id, Request $request): JsonResponse
@@ -97,9 +106,13 @@ class FhirController extends Controller
         if (! empty($bv)) {
             return $this->responseFactory->validationError($bv);
         }
-        $attrs = $t->fromFhir($fhir);
+        if (! $t instanceof FhirWritableResourceContract) {
+            return $this->notSupported($resourceType, 'update');
+        }
 
-        return $this->responseFactory->updated($t->toFhir($model->fresh()));
+        $updated = $t->updateFromFhir($model, $fhir);
+
+        return $this->responseFactory->updated($t->toFhir($updated));
     }
 
     public function destroy(string $resourceType, string $id): JsonResponse
@@ -122,5 +135,22 @@ class FhirController extends Controller
         $entry = $this->registrar->get($resourceType);
 
         return $entry ? app($entry['transformer_class']) : null;
+    }
+
+    /**
+     * A registered resource that cannot service a write.
+     *
+     * 405 rather than 404: the resource type exists and is readable, but this
+     * interaction is not implemented for it.
+     */
+    protected function notSupported(string $resourceType, string $interaction): JsonResponse
+    {
+        return $this->responseFactory->operationOutcome([
+            [
+                'severity' => 'error',
+                'code' => 'not-supported',
+                'details' => ['text' => "{$resourceType} does not support the {$interaction} interaction"],
+            ],
+        ], 405);
     }
 }
