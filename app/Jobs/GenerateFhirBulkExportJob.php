@@ -13,6 +13,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 use Modules\FHIR\Enums\FhirExportStatus;
 use Modules\FHIR\FhirBundle\BulkExporter;
 use Modules\FHIR\Models\FhirExportJob;
@@ -175,10 +176,13 @@ class GenerateFhirBulkExportJob implements ShouldQueue
 
             $output[] = [
                 'type' => $resourceType,
-                'url' => route('api.fhir.export.file', [
-                    'export' => $job->id,
-                    'type' => $resourceType,
-                ]),
+                // Signed so the "export ready" notification works from a plain
+                // browser session; expires with the file's retention window.
+                'url' => URL::temporarySignedRoute(
+                    'api.fhir.export.file',
+                    now()->addDays((int) config('fhir.export.retention_days', 7)),
+                    ['export' => $job->id, 'type' => $resourceType],
+                ),
                 'count' => $count,
             ];
         }

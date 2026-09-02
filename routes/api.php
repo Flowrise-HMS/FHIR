@@ -49,8 +49,6 @@ Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () use ($types
         ->name('fhir.export.status');
     Route::delete('fhir/$export-status/{export}', [FhirExportStatusController::class, 'destroy'])
         ->name('fhir.export.cancel');
-    Route::get('fhir/$export-file/{export}/{type}', [FhirExportStatusController::class, 'file'])
-        ->name('fhir.export.file');
 
     Route::middleware([FhirContentNegotiation::class])->group(function () use ($typesSupporting) {
         Route::get('fhir/{resource}/{id}', [FhirController::class, 'read'])
@@ -64,4 +62,15 @@ Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () use ($types
         Route::delete('fhir/{resource}/{id}', [FhirController::class, 'destroy'])
             ->where('resource', $typesSupporting('delete'));
     });
+});
+
+/*
+ | Export file downloads sit outside the auth:sanctum group: the manifest and
+ | the "export ready" notification hand out temporary signed URLs so a browser
+ | (panel session, no bearer token) can download. The controller still requires
+ | either a valid signature or an authorized Sanctum caller.
+ */
+Route::prefix('v1')->group(function () {
+    Route::get('fhir/$export-file/{export}/{type}', [FhirExportStatusController::class, 'file'])
+        ->name('fhir.export.file');
 });

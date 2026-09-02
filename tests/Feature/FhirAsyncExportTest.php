@@ -162,10 +162,11 @@ class FhirAsyncExportTest extends TestCase
         $manifest = $this->actingAs($this->user)->getJson($statusUrl);
 
         $manifest->assertStatus(200);
-        $manifest->assertJsonPath('requiresAccessToken', true);
+        $manifest->assertJsonPath('requiresAccessToken', false);
         $manifest->assertJsonPath('output.0.type', 'Patient');
         $this->assertNotEmpty($manifest->json('transactionTime'));
         $this->assertGreaterThan(0, $manifest->json('output.0.count'));
+        $this->assertStringContainsString('signature=', $manifest->json('output.0.url'));
     }
 
     public function test_another_users_export_is_not_visible(): void
@@ -198,6 +199,51 @@ class FhirAsyncExportTest extends TestCase
         $this->actingAs($this->user)
             ->get("/api/v1/fhir/\$export-file/{$job->id}/Patient")
             ->assertSuccessful();
+    }
+
+    /**
+     * The "export ready" notification links a plain browser (panel session, no
+     * bearer token) at the file URL, so the manifest hands out temporary signed
+     * URLs that authorize the download on their own.
+     */
+    public function test_the_signed_file_url_downloads_without_authentication(): void
+    {
+        $this->patientIn($this->branchA, 'Asante');
+
+        $job = FhirExportJob::query()->create([
+            'branch_id' => $this->branchA->id,
+            'requested_by' => $this->user->id,
+            'status' => FhirExportStatus::PENDING,
+            'types' => ['Patient'],
+        ]);
+
+        (new GenerateFhirBulkExportJob($job->id))->handle(app(BulkExporter::class));
+
+        $url = $job->fresh()->output[0]['url'];
+
+        $this->assertStringContainsString('signature=', $url);
+        $this->get($url)->assertSuccessful();
+    }
+
+    /**
+     * Regression: an unauthenticated browser request (Accept: text/html) used to
+     * make the Authenticate middleware evaluate the undefined route('login') and
+     * answer with a 500 instead of a clean refusal.
+     */
+    public function test_an_unsigned_unauthenticated_download_is_refused_without_a_server_error(): void
+    {
+        $job = FhirExportJob::query()->create([
+            'branch_id' => $this->branchA->id,
+            'requested_by' => $this->user->id,
+            'status' => FhirExportStatus::COMPLETED,
+            'types' => ['Patient'],
+        ]);
+
+        $this->get("/api/v1/fhir/\$export-file/{$job->id}/Patient", ['Accept' => 'text/html'])
+            ->assertStatus(404);
+
+        $this->get('/api/v1/fhir/$export', ['Accept' => 'text/html'])
+            ->assertStatus(401);
     }
 
     public function test_a_download_is_refused_to_someone_elses_requester(): void

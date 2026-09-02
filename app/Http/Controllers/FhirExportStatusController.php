@@ -3,6 +3,7 @@
 namespace Modules\FHIR\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -17,8 +18,9 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  *
  * Every action re-checks ownership rather than relying on a global scope: the
  * export row is deliberately not branch-scoped (see FhirExportJob), because the
- * caller needs a definite "not yours" rather than a silent miss, and the manifest
- * promises `requiresAccessToken: true` — a promise only this controller keeps.
+ * caller needs a definite "not yours" rather than a silent miss. File URLs are
+ * temporary signed URLs (`requiresAccessToken: false`); everything else requires
+ * an authorized Sanctum caller.
  */
 class FhirExportStatusController extends Controller
 {
@@ -70,9 +72,17 @@ class FhirExportStatusController extends Controller
     /**
      * Stream one of the generated NDJSON files.
      */
-    public function file(string $export, string $type): StreamedResponse|JsonResponse
+    /**
+     * The route carries no auth middleware: a temporary signed URL (handed out by
+     * the manifest and the "export ready" notification) authorizes a plain
+     * browser download, while unsigned callers must pass the same Sanctum
+     * ownership check as the other endpoints.
+     */
+    public function file(Request $request, string $export, string $type): StreamedResponse|JsonResponse
     {
-        $job = $this->authorizedJob($export);
+        $job = $request->hasValidSignature()
+            ? (FhirExportJob::query()->find($export) ?? $this->outcome('Export not found.', 404))
+            : $this->authorizedJob($export);
 
         if ($job instanceof JsonResponse) {
             return $job;
@@ -102,7 +112,7 @@ class FhirExportStatusController extends Controller
         return [
             'transactionTime' => $job->transaction_time?->toIso8601String(),
             'request' => url()->current(),
-            'requiresAccessToken' => true,
+            'requiresAccessToken' => false,
             'output' => $job->output ?? [],
             'error' => [],
         ];
