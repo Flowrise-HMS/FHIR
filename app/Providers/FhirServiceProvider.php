@@ -2,6 +2,7 @@
 
 namespace Modules\FHIR\Providers;
 
+use Illuminate\Console\Scheduling\Schedule;
 use Modules\Core\Classes\Support\PageHeaderActionsRegistry;
 use Modules\Core\Classes\Support\TableBulkActionsRegistry;
 use Modules\Core\Support\ModuleAvailability;
@@ -40,6 +41,14 @@ class FhirServiceProvider extends ModuleServiceProvider
         }
 
         $this->registerExportActions();
+    }
+
+    /**
+     * Bulk export files are kept for FHIR_EXPORT_RETENTION_DAYS; prune daily.
+     */
+    protected function configureSchedules(Schedule $schedule): void
+    {
+        $schedule->command('fhir:prune-exports')->daily();
     }
 
     /**

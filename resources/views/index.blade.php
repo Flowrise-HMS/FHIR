@@ -1,5 +1,0 @@
-<x-fhir::layouts.master>
-    <h1>Hello World</h1>
-
-    <p>Module: {!! config('fhir.name') !!}</p>
-</x-fhir::layouts.master>
