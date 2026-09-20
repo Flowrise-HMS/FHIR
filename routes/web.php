@@ -1,8 +1,11 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use Modules\FHIR\Http\Controllers\FHIRController;
-
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::resource('fhirs', FHIRController::class)->names('fhir');
-});
+/*
+|--------------------------------------------------------------------------
+| FHIR web routes
+|--------------------------------------------------------------------------
+|
+| The FHIR module exposes no browser routes. The R4 API lives in routes/api.php
+| and the admin "Export FHIR" actions are Filament actions on the Patients list.
+|
+*/

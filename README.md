@@ -18,7 +18,7 @@ See [Module Status](../../docs/shared/module-status.md) for the canonical rollou
 - **Bundle import:** `POST /api/v1/fhir` (transaction/batch bundles, `BundleImporter`)
 - **Bulk export:** `GET /api/v1/fhir/$export` (`_type`, `_since`; 202 + `Content-Location`), `GET|DELETE /api/v1/fhir/$export-status/{export}`, `GET /api/v1/fhir/$export-file/{export}/{type}` (NDJSON via temporary signed URL or the token owner). Runs on the queue (`GenerateFhirBulkExportJob`, `FhirExportJob` model, `BulkExporter`).
 - **Admin panel:** "Export FHIR" header action (modal **Export as FHIR**: confirmation only, no options; **Start export** queues an NDJSON export of the rows matching the current filters and notifies when ready) and "Export Selected as FHIR" bulk action on the Patients list (permission `export_fhir`)
-- **Command:** `php artisan fhir:prune-exports {--dry-run}` removes export files/records past `FHIR_EXPORT_RETENTION_DAYS` (not scheduled by default)
+- **Command:** `php artisan fhir:prune-exports {--dry-run}` removes export files/records past `FHIR_EXPORT_RETENTION_DAYS` (scheduled daily by `FhirServiceProvider::configureSchedules()`)
 - **Infrastructure:** `FhirResourceRegistrar` (route constraints derived per interaction), `FhirValidator`, search parameter handling
 
 ## Configuration
@@ -31,7 +31,6 @@ See [Module Status](../../docs/shared/module-status.md) for the canonical rollou
 - Full CRUD for resources currently exposed as read/search only
 - SMART on FHIR authentication
 - CCD document generation
-- Scheduling `fhir:prune-exports` automatically
 
 ## Dependencies
 
