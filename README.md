@@ -10,7 +10,7 @@ See [Module Status](../../docs/shared/module-status.md) for the canonical rollou
 
 ## What is implemented
 
-- **API base:** `/api/v1/fhir/{resource}` (Sanctum-authenticated; `FhirContentNegotiation` middleware)
+- **API base:** `/api/v1/fhir/{resource}` (Sanctum, `fhir` token scope, branch; `FhirContentNegotiation` middleware)
 - **Metadata:** `GET /api/v1/fhir/metadata` (capability statement)
 - **Full CRUD:** Patient (Patient module transformer), Practitioner and PractitionerRole (Staff module transformers)
 - **Read/search:** Organization, Location, HealthcareService (Core); Encounter, Condition, AllergyIntolerance, CarePlan, Goal (Clinical); Observation (Diagnostics); Appointment, AppointmentResponse (Appointment); InventoryItem (Inventory); EpisodeOfCare (MCH)
@@ -19,15 +19,12 @@ See [Module Status](../../docs/shared/module-status.md) for the canonical rollou
 - **Bulk export:** `GET /api/v1/fhir/$export` (`_type`, `_since`; 202 + `Content-Location`), `GET|DELETE /api/v1/fhir/$export-status/{export}`, `GET /api/v1/fhir/$export-file/{export}/{type}` (NDJSON via temporary signed URL or the token owner). Runs on the queue (`GenerateFhirBulkExportJob`, `FhirExportJob` model, `BulkExporter`).
 - **Admin panel:** "Export FHIR" header action (modal **Export as FHIR**: confirmation only, no options; **Start export** queues an NDJSON export of the rows matching the current filters and notifies when ready) and "Export Selected as FHIR" bulk action on the Patients list (permission `export_fhir`)
 - **Command:** `php artisan fhir:prune-exports {--dry-run}` removes export files/records past `FHIR_EXPORT_RETENTION_DAYS` (scheduled daily by `FhirServiceProvider::configureSchedules()`)
+- **Access control:** `FhirAuthorizer` asks the policy of the model behind the resource for every read, search, write, Bundle entry and export. A model without a policy names the relation to its governing record as the fifth element of its entry in `FhirServiceProvider` (`PractitionerRole` → staff, `Goal` → care plan, `Observation` → diagnostic order); `FhirAuthorizationTest` fails for a resource with neither. See [FHIR Administration](../../docs/admin-guide/fhir.md#access)
 - **Infrastructure:** `FhirResourceRegistrar` (route constraints derived per interaction), `FhirValidator`, search parameter handling
 
 ## Configuration
 
 `config/config.php` (`config('fhir.export.*')`): `FHIR_EXPORT_QUEUE` (default `default`), `FHIR_EXPORT_DISK` (default `local`; must be a private disk), `FHIR_EXPORT_RETENTION_DAYS` (7). A queue worker must be running for exports to complete.
-
-## Known limitation
-
-Endpoints require a valid Sanctum token but check neither the user's permissions nor the REST token scopes. See [FHIR Administration](../../docs/admin-guide/fhir.md#access).
 
 ## What is deferred
 
@@ -46,5 +43,5 @@ Endpoints require a valid Sanctum token but check neither the user's permissions
 - **Namespace:** `Modules\FHIR\...`
 - **Service provider:** `Modules\FHIR\Providers\FhirServiceProvider`
 - **Routes:** `Modules/FHIR/routes/api.php`
-- **Tests:** `Modules/FHIR/tests/` (18 test files: capability, bundle import, bulk export, appointment/care-plan integration, infrastructure unit tests); domain modules include transformer unit tests
+- **Tests:** `Modules/FHIR/tests/` (19 test files: authorisation, capability, bundle import, bulk export, appointment/care-plan integration, infrastructure unit tests); domain modules include transformer unit tests
 - **Docs:** [API Reference](../../docs/developer-guide/api-reference.md)
