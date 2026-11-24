@@ -6,7 +6,7 @@
 
 **In progress.** Infrastructure (validation, search, pagination, capability statement, content negotiation), Bundle import and bulk export are built and many resource types are registered. SMART on FHIR and the remaining clinical/financial resources remain planned.
 
-See [Module Status](../../docs/shared/module-status.md) for the canonical rollout matrix. Verified against code on 2026-09-20.
+See [Module Status](../../docs/shared/module-status.md) for the canonical rollout matrix. Verified against code on 2026-11-24.
 
 ## What is implemented
 
@@ -25,6 +25,10 @@ See [Module Status](../../docs/shared/module-status.md) for the canonical rollou
 
 `config/config.php` (`config('fhir.export.*')`): `FHIR_EXPORT_QUEUE` (default `default`), `FHIR_EXPORT_DISK` (default `local`; must be a private disk), `FHIR_EXPORT_RETENTION_DAYS` (7). A queue worker must be running for exports to complete.
 
+## Known limitation
+
+Endpoints require a valid Sanctum token but check neither the user's permissions nor the REST token scopes. See [FHIR Administration](../../docs/admin-guide/fhir.md#access).
+
 ## What is deferred
 
 - Additional FHIR resources (DiagnosticReport, Claim, Coverage, ServiceRequest, Medication*, DocumentReference, Schedule, Slot, SupplyDelivery, etc.)
@@ -41,6 +45,6 @@ See [Module Status](../../docs/shared/module-status.md) for the canonical rollou
 
 - **Namespace:** `Modules\FHIR\...`
 - **Service provider:** `Modules\FHIR\Providers\FhirServiceProvider`
-- **Routes:** `Modules/FHIR/routes/api.php` (`routes/web.php` still holds a scaffold `Route::resource('fhirs')` with placeholder views that is not part of the API)
-- **Tests:** `Modules/FHIR/tests/` (17 test files: capability, bundle import, bulk export, appointment/care-plan integration, infrastructure unit tests); domain modules include transformer unit tests
+- **Routes:** `Modules/FHIR/routes/api.php`
+- **Tests:** `Modules/FHIR/tests/` (18 test files: capability, bundle import, bulk export, appointment/care-plan integration, infrastructure unit tests); domain modules include transformer unit tests
 - **Docs:** [API Reference](../../docs/developer-guide/api-reference.md)
