@@ -15,6 +15,7 @@ use Modules\FHIR\FhirBundle\BulkExporter;
 use Modules\FHIR\Jobs\GenerateFhirBulkExportJob;
 use Modules\FHIR\Models\FhirExportJob;
 use Modules\Patient\Models\Patient;
+use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
 /**
@@ -62,6 +63,10 @@ class FhirAsyncExportTest extends TestCase
         ]);
 
         $this->user = User::factory()->create(['branch_id' => $this->branchA->id]);
+
+        foreach (['export_fhir', 'ViewAny Patient'] as $permission) {
+            $this->user->givePermissionTo(Permission::findOrCreate($permission, 'web'));
+        }
 
         Storage::fake('local');
     }

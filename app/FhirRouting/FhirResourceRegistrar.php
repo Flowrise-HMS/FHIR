@@ -6,12 +6,18 @@ class FhirResourceRegistrar
 {
     protected array $resources = [];
 
-    public function register(string $resourceType, string $transformerClass, array $interactions = ['read', 'search-type', 'create', 'update', 'delete']): void
+    /**
+     * @param  list<string>  $interactions
+     * @param  string|null  $through  relation path to the record whose policy governs this
+     *                                resource, when its model has none of its own (see FhirAuthorizer)
+     */
+    public function register(string $resourceType, string $transformerClass, array $interactions = ['read', 'search-type', 'create', 'update', 'delete'], ?string $through = null): void
     {
         $this->resources[$resourceType] = [
             'resource_type' => $resourceType,
             'transformer_class' => $transformerClass,
             'interactions' => $interactions,
+            'through' => $through,
         ];
     }
 

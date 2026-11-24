@@ -10,6 +10,9 @@ use Modules\FHIR\Enums\FhirExportStatus;
 use Modules\FHIR\FhirBundle\BulkExporter;
 use Modules\FHIR\FhirBundle\BundleImporter;
 use Modules\FHIR\FhirResponse\FhirResponseFactory;
+use Modules\FHIR\FhirRouting\FhirAuthorizer;
+use Modules\FHIR\FhirRouting\FhirResourceRegistrar;
+use Modules\FHIR\Filament\Actions\ExportFhirAction;
 use Modules\FHIR\Jobs\GenerateFhirBulkExportJob;
 use Modules\FHIR\Models\FhirExportJob;
 
@@ -27,6 +30,8 @@ class FhirBundleController extends Controller
         protected BundleImporter $importer,
         protected BulkExporter $exporter,
         protected FhirResponseFactory $responseFactory,
+        protected FhirResourceRegistrar $registrar,
+        protected FhirAuthorizer $authorizer,
     ) {}
 
     /**
@@ -88,6 +93,11 @@ class FhirBundleController extends Controller
      * delivered through FhirExportStatusController. Exports routinely outlive a
      * request, so a synchronous response would either time out or hold a
      * connection open for the duration.
+     *
+     * Needs `export_fhir` and, per type, permission to list that resource. The
+     * worker has no user to ask, so the types are settled here and recorded on
+     * the job: without `_type` it is everything the caller may list, and naming
+     * a type they may not list refuses the request.
      */
     public function export(Request $request): JsonResponse
     {
@@ -103,10 +113,34 @@ class FhirBundleController extends Controller
             ], 403);
         }
 
-        $types = array_values(array_intersect(
-            array_values(array_filter(explode(',', (string) $request->query('_type', '')))),
-            $this->exporter->exportableTypes(),
+        if (! $request->user()->can(ExportFhirAction::PERMISSION)) {
+            return $this->responseFactory->forbidden();
+        }
+
+        $requested = array_values(array_unique(array_filter(array_map('trim', explode(',', (string) $request->query('_type', ''))))));
+        $exportable = $this->exporter->exportableTypes();
+        $unknown = array_diff($requested, $exportable);
+
+        // Dropping an unknown type could leave nothing named, which would read as "everything".
+        if ($unknown !== []) {
+            return $this->responseFactory->operationOutcome([
+                [
+                    'severity' => 'error',
+                    'code' => 'not-supported',
+                    'details' => ['text' => 'Cannot export: '.implode(', ', $unknown)],
+                    'expression' => ['_type'],
+                ],
+            ], 400);
+        }
+
+        $permitted = array_values(array_filter(
+            $requested === [] ? $exportable : $requested,
+            fn (string $type): bool => $this->authorizer->allows('export', app($this->registrar->get($type)['transformer_class'])),
         ));
+
+        if ($permitted === [] || ($requested !== [] && count($permitted) !== count($requested))) {
+            return $this->responseFactory->forbidden();
+        }
 
         $since = $request->query('_since');
 
@@ -114,7 +148,7 @@ class FhirBundleController extends Controller
             'branch_id' => $branchId,
             'requested_by' => $request->user()->getKey(),
             'status' => FhirExportStatus::PENDING,
-            'types' => $types === [] ? null : $types,
+            'types' => $permitted,
             'since' => is_string($since) ? $since : null,
         ]);
 

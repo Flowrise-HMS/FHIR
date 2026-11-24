@@ -4,6 +4,7 @@ namespace Modules\FHIR\FhirBundle;
 
 use Illuminate\Support\Facades\DB;
 use Modules\FHIR\Contracts\FhirWritableResourceContract;
+use Modules\FHIR\FhirRouting\FhirAuthorizer;
 use Modules\FHIR\FhirRouting\FhirResourceRegistrar;
 use Modules\FHIR\FhirValidation\FhirValidator;
 use Throwable;
@@ -33,6 +34,7 @@ class BundleImporter
     public function __construct(
         protected FhirResourceRegistrar $registrar,
         protected FhirValidator $validator,
+        protected FhirAuthorizer $authorizer,
     ) {}
 
     /**
@@ -129,6 +131,10 @@ class BundleImporter
             return $this->failure(405, 'not-supported', "{$resourceType} does not support the {$interaction} interaction.");
         }
 
+        if ($interaction === 'create' && ! $this->authorizer->allows('create', $transformer)) {
+            return $this->failure(403, 'forbidden', "You may not create {$resourceType} resources.");
+        }
+
         $validation = $this->validator->validate($resourceType, $resource);
 
         if (! $validation['valid']) {
@@ -189,10 +195,14 @@ class BundleImporter
             return $this->failure(400, 'invalid', "Entry {$index} is a PUT with no resource id.");
         }
 
-        $model = $transformer->findById($id);
+        $model = $this->authorizer->find($transformer, $id);
 
         if ($model === null) {
             return $this->failure(404, 'not-found', "{$resourceType}/{$id} not found.");
+        }
+
+        if (! $this->authorizer->allows('update', $transformer, $model)) {
+            return $this->failure(403, 'forbidden', "You may not update {$resourceType}/{$id}.");
         }
 
         $updated = $transformer->updateFromFhir($model, $resource);
@@ -312,6 +322,7 @@ class BundleImporter
     {
         return match ($status) {
             400 => 'Bad Request',
+            403 => 'Forbidden',
             404 => 'Not Found',
             405 => 'Method Not Allowed',
             422 => 'Unprocessable Entity',

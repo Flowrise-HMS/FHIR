@@ -8,6 +8,7 @@ use Modules\Core\Classes\Support\TableBulkActionsRegistry;
 use Modules\Core\Support\ModuleAvailability;
 use Modules\FHIR\Console\Commands\PruneFhirExportsCommand;
 use Modules\FHIR\FhirResponse\FhirResponseFactory;
+use Modules\FHIR\FhirRouting\FhirAuthorizer;
 use Modules\FHIR\FhirRouting\FhirResourceRegistrar;
 use Modules\FHIR\FhirSearch\PaginationHandler;
 use Modules\FHIR\FhirSearch\SearchParameterParser;
@@ -104,6 +105,7 @@ class FhirServiceProvider extends ModuleServiceProvider
         parent::register();
 
         $this->app->singleton(FhirResourceRegistrar::class);
+        $this->app->singleton(FhirAuthorizer::class);
         $this->app->singleton(FhirResponseFactory::class);
         $this->app->singleton(FhirValidator::class, fn ($app) => new FhirValidator(module_path('FHIR', 'Resources/schemas')));
         $this->app->singleton(SearchParameterParser::class);
@@ -118,16 +120,19 @@ class FhirServiceProvider extends ModuleServiceProvider
     protected function registerSoftTransformers(FhirResourceRegistrar $registrar): void
     {
         /**
-         * @var list<array{0: string, 1: class-string, 2: list<string>, 3: ?string}>
+         * Resource type, transformer, interactions, owning module and, for models
+         * without a policy, the relation to the record that governs access.
+         *
+         * @var list<array{0: string, 1: class-string, 2: list<string>, 3: ?string, 4?: string}>
          */
         $transformers = [
             ['Patient', 'Modules\\Patient\\Classes\\Fhir\\FhirPatientTransformer', ['read', 'search-type', 'create', 'update', 'delete'], 'Patient'],
             ['Practitioner', 'Modules\\Staff\\Classes\\Fhir\\FhirPractitionerTransformer', ['read', 'search-type', 'create', 'update', 'delete'], 'Staff'],
-            ['PractitionerRole', 'Modules\\Staff\\Classes\\Fhir\\FhirPractitionerRoleTransformer', ['read', 'search-type', 'create', 'update', 'delete'], 'Staff'],
+            ['PractitionerRole', 'Modules\\Staff\\Classes\\Fhir\\FhirPractitionerRoleTransformer', ['read', 'search-type', 'create', 'update', 'delete'], 'Staff', 'staff'],
             ['Appointment', 'Modules\\Appointment\\Classes\\Fhir\\FhirAppointmentTransformer', ['read', 'search-type'], 'Appointment'],
             ['AppointmentResponse', 'Modules\\Appointment\\Classes\\Fhir\\FhirAppointmentResponseTransformer', ['read', 'search-type'], 'Appointment'],
             ['CarePlan', 'Modules\\Clinical\\Classes\\Fhir\\FhirCarePlanTransformer', ['read', 'search-type'], 'Clinical'],
-            ['Goal', 'Modules\\Clinical\\Classes\\Fhir\\FhirGoalTransformer', ['read', 'search-type'], 'Clinical'],
+            ['Goal', 'Modules\\Clinical\\Classes\\Fhir\\FhirGoalTransformer', ['read', 'search-type'], 'Clinical', 'diagnosis.carePlan'],
             ['EpisodeOfCare', 'Modules\\MCH\\Classes\\Fhir\\FhirEpisodeOfCareTransformer', ['read', 'search-type'], 'MCH'],
             /*
              * Read-only until an import mapping is designed. FhirImmunizationTransformer::fromFhir()
@@ -146,13 +151,15 @@ class FhirServiceProvider extends ModuleServiceProvider
             ['Location', 'Modules\\Core\\Classes\\Fhir\\FhirLocationTransformer', ['read', 'search-type'], null],
             ['HealthcareService', 'Modules\\Core\\Classes\\Fhir\\FhirHealthcareServiceTransformer', ['read', 'search-type'], null],
             ['Encounter', 'Modules\\Clinical\\Classes\\Fhir\\FhirEncounterTransformer', ['read', 'search-type'], 'Clinical'],
-            ['Observation', 'Modules\\Diagnostics\\Classes\\Fhir\\FhirObservationTransformer', ['read', 'search-type'], 'Diagnostics'],
+            ['Observation', 'Modules\\Diagnostics\\Classes\\Fhir\\FhirObservationTransformer', ['read', 'search-type'], 'Diagnostics', 'fulfillment'],
             ['Condition', 'Modules\\Clinical\\Classes\\Fhir\\FhirConditionTransformer', ['read', 'search-type'], 'Clinical'],
             ['AllergyIntolerance', 'Modules\\Clinical\\Classes\\Fhir\\FhirAllergyIntoleranceTransformer', ['read', 'search-type'], 'Clinical'],
             ['InventoryItem', 'Modules\\Inventory\\Classes\\Fhir\\FhirInventoryItemTransformer', ['read', 'search-type'], 'Inventory'],
         ];
 
-        foreach ($transformers as [$resourceType, $transformerClass, $interactions, $module]) {
+        foreach ($transformers as $entry) {
+            [$resourceType, $transformerClass, $interactions, $module] = $entry;
+
             if ($module !== null && ! ModuleAvailability::enabled($module)) {
                 continue;
             }
@@ -161,7 +168,7 @@ class FhirServiceProvider extends ModuleServiceProvider
                 continue;
             }
 
-            $registrar->register($resourceType, $transformerClass, $interactions);
+            $registrar->register($resourceType, $transformerClass, $interactions, $entry[4] ?? null);
         }
     }
 }

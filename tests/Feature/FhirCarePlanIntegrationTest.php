@@ -22,6 +22,7 @@ use Modules\Clinical\Models\Encounter;
 use Modules\Clinical\Models\NursingDiagnosisCatalogue;
 use Modules\Core\Models\Branch;
 use Modules\Patient\Models\Patient;
+use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
 class FhirCarePlanIntegrationTest extends TestCase
@@ -42,6 +43,9 @@ class FhirCarePlanIntegrationTest extends TestCase
 
         $branch = Branch::factory()->create();
         $user = User::factory()->create(['branch_id' => $branch->id]);
+        foreach (['ViewAny CarePlan', 'View CarePlan'] as $permission) {
+            $user->givePermissionTo(Permission::findOrCreate($permission, 'web'));
+        }
         $this->actingAs($user);
 
         $patient = Patient::withoutEvents(

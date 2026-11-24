@@ -9,6 +9,7 @@ use Modules\Appointment\Models\AppointmentParticipant;
 use Modules\Core\Models\Branch;
 use Modules\Patient\Models\Patient;
 use Modules\Staff\Models\Staff;
+use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
 class FhirAppointmentIntegrationTest extends TestCase
@@ -35,6 +36,9 @@ class FhirAppointmentIntegrationTest extends TestCase
 
         $this->branch = Branch::factory()->create();
         $this->user = User::factory()->create(['branch_id' => $this->branch->id]);
+        foreach (['ViewAny Appointment', 'View Appointment', 'View AppointmentParticipant'] as $permission) {
+            $this->user->givePermissionTo(Permission::findOrCreate($permission, 'web'));
+        }
         $this->actingAs($this->user);
 
         $this->patient = Patient::factory()->create();

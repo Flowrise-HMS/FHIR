@@ -38,7 +38,6 @@ class FhirExportScopeGuardTest extends TestCase
         'Location' => 'Facility topology. Rows may legitimately have a null branch (shared locations).',
         'HealthcareService' => 'Department catalogue; reaches a branch only through the department_location pivot.',
         'InventoryItem' => 'Facility-wide item catalogue, not patient data.',
-        'PractitionerRole' => 'StaffDepartment is a Pivot with no branch column; staff roster, not clinical data.',
     ];
 
     protected function setUp(): void

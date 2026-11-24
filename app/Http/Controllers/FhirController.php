@@ -8,6 +8,7 @@ use Illuminate\Routing\Controller;
 use Modules\FHIR\Contracts\FhirResourceContract;
 use Modules\FHIR\Contracts\FhirWritableResourceContract;
 use Modules\FHIR\FhirResponse\FhirResponseFactory;
+use Modules\FHIR\FhirRouting\FhirAuthorizer;
 use Modules\FHIR\FhirRouting\FhirResourceRegistrar;
 use Modules\FHIR\FhirSearch\SearchParameterParser;
 use Modules\FHIR\FhirSearch\SearchQueryBuilder;
@@ -21,6 +22,7 @@ class FhirController extends Controller
         protected FhirValidator $validator,
         protected SearchParameterParser $parameterParser,
         protected SearchQueryBuilder $queryBuilder,
+        protected FhirAuthorizer $authorizer,
     ) {}
 
     public function read(string $resourceType, string $id): JsonResponse
@@ -29,9 +31,13 @@ class FhirController extends Controller
         if (! $t) {
             return $this->responseFactory->notFound($resourceType, $id);
         }
-        $model = $t->findById($id);
+        $model = $this->authorizer->find($t, $id);
         if (! $model) {
             return $this->responseFactory->notFound($resourceType, $id);
+        }
+
+        if (! $this->authorizer->allows('read', $t, $model)) {
+            return $this->responseFactory->forbidden();
         }
 
         return $this->responseFactory->resource($t->toFhir($model));
@@ -42,6 +48,9 @@ class FhirController extends Controller
         $t = $this->resolve($resourceType);
         if (! $t) {
             return $this->responseFactory->operationOutcome([['severity' => 'error', 'code' => 'not-found', 'details' => ['text' => "Unsupported: {$resourceType}"]]], 404);
+        }
+        if (! $this->authorizer->allows('search-type', $t)) {
+            return $this->responseFactory->forbidden();
         }
         $params = $this->parameterParser->parse($request->query());
         $query = $t->query();
@@ -65,6 +74,12 @@ class FhirController extends Controller
         if (! $t) {
             return $this->responseFactory->notFound($resourceType, '');
         }
+        if (! $t instanceof FhirWritableResourceContract) {
+            return $this->notSupported($resourceType, 'create');
+        }
+        if (! $this->authorizer->allows('create', $t)) {
+            return $this->responseFactory->forbidden();
+        }
         $fhir = $request->json()->all();
         $v = $this->validator->validate($resourceType, $fhir);
         if (! $v['valid']) {
@@ -73,9 +88,6 @@ class FhirController extends Controller
         $bv = $t->validateBusinessRules($fhir);
         if (! empty($bv)) {
             return $this->responseFactory->validationError($bv);
-        }
-        if (! $t instanceof FhirWritableResourceContract) {
-            return $this->notSupported($resourceType, 'create');
         }
 
         $model = $t->createFromFhir($fhir);
@@ -93,9 +105,15 @@ class FhirController extends Controller
         if (! $t) {
             return $this->responseFactory->notFound($resourceType, $id);
         }
-        $model = $t->findById($id);
+        $model = $this->authorizer->find($t, $id);
         if (! $model) {
             return $this->responseFactory->notFound($resourceType, $id);
+        }
+        if (! $t instanceof FhirWritableResourceContract) {
+            return $this->notSupported($resourceType, 'update');
+        }
+        if (! $this->authorizer->allows('update', $t, $model)) {
+            return $this->responseFactory->forbidden();
         }
         $fhir = array_merge($request->json()->all(), ['id' => $id]);
         $v = $this->validator->validate($resourceType, $fhir);
@@ -105,9 +123,6 @@ class FhirController extends Controller
         $bv = $t->validateBusinessRules($fhir);
         if (! empty($bv)) {
             return $this->responseFactory->validationError($bv);
-        }
-        if (! $t instanceof FhirWritableResourceContract) {
-            return $this->notSupported($resourceType, 'update');
         }
 
         $updated = $t->updateFromFhir($model, $fhir);
@@ -121,9 +136,12 @@ class FhirController extends Controller
         if (! $t) {
             return $this->responseFactory->notFound($resourceType, $id);
         }
-        $model = $t->findById($id);
+        $model = $this->authorizer->find($t, $id);
         if (! $model) {
             return $this->responseFactory->notFound($resourceType, $id);
+        }
+        if (! $this->authorizer->allows('delete', $t, $model)) {
+            return $this->responseFactory->forbidden();
         }
         $model->delete();
 

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Modules\Core\Http\Middleware\EnsureApiTokenAbility;
 use Modules\FHIR\FhirRouting\FhirResourceRegistrar;
 use Modules\FHIR\Http\Controllers\CapabilityController;
 use Modules\FHIR\Http\Controllers\FhirBundleController;
@@ -35,7 +36,13 @@ $typesSupporting = static function (string $interaction) use ($registrar): strin
     return $types === [] ? '(*FAIL)' : implode('|', $types);
 };
 
-Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () use ($typesSupporting) {
+/*
+ | Same three checks as the REST API: the token's `fhir` scope, the caller's
+ | branch, and (in FhirAuthorizer) the policy behind each resource. Without a
+ | branch the models' branch scope filters nothing, so branchless accounts are
+ | refused rather than shown every branch.
+ */
+Route::middleware(['auth:sanctum', 'api.branch', EnsureApiTokenAbility::class.':fhir'])->prefix('v1')->group(function () use ($typesSupporting) {
     Route::get('fhir/metadata', [CapabilityController::class, 'metadata']);
 
     /*
