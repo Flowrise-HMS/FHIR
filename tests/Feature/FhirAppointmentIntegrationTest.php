@@ -36,7 +36,7 @@ class FhirAppointmentIntegrationTest extends TestCase
 
         $this->branch = Branch::factory()->create();
         $this->user = User::factory()->create(['branch_id' => $this->branch->id]);
-        foreach (['ViewAny Appointment', 'View Appointment', 'View AppointmentParticipant'] as $permission) {
+        foreach (['ViewAny Appointment', 'View Appointment', 'View AppointmentParticipant', 'View Patient'] as $permission) {
             $this->user->givePermissionTo(Permission::findOrCreate($permission, 'web'));
         }
         $this->actingAs($this->user);
